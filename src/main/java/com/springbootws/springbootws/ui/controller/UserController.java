@@ -1,6 +1,8 @@
 package com.springbootws.springbootws.ui.controller;
 
 import com.springbootws.springbootws.exception.UserServiceException;
+import com.springbootws.springbootws.security.SecurityConstants;
+import com.springbootws.springbootws.shared.AmazonSES;
 import com.springbootws.springbootws.shared.dto.AddressDTO;
 import com.springbootws.springbootws.shared.dto.UserDto;
 import com.springbootws.springbootws.ui.model.request.UserDetailsRequestModel;
@@ -31,6 +33,8 @@ public class UserController {
 
     @Autowired
     private AddressService addressService;
+    @Autowired
+    private AmazonSES amazonSES;
 
     private ModelMapper mapper = new ModelMapper();
 
@@ -51,6 +55,8 @@ public class UserController {
         UserDto userDto = mapper.map(userDetails, UserDto.class);
 
         UserDto createdUser = userService.createUser(userDto);
+
+        amazonSES.verifyEmail(createdUser);
 
 //        BeanUtils.copyProperties(createdUser, returnValue);
         UserRest returnValue = mapper.map(createdUser, UserRest.class);
@@ -145,5 +151,25 @@ public class UserController {
         result.add(addressLink, userLink, addressesLink);
 
         return new Resource<>(result);
+    }
+
+    @GetMapping(path = "/email-verification", produces = {
+            MediaType.APPLICATION_JSON_VALUE,
+            MediaType.APPLICATION_XML_VALUE
+    })
+    public OperationStatusModel verifyByEmailToken(@RequestParam(value = "token") String token){
+
+        OperationStatusModel result = new OperationStatusModel();
+        result.setOperationName(RequestOperationName.VERIFY_EMAIL.name());
+
+        boolean isVerified = userService.verifyByEmailToken(token);
+
+        if (isVerified){
+            result.setOperationResult(RequestOperationStatus.SUCCESS.name());
+        } else {
+            result.setOperationResult(RequestOperationStatus.ERROR.name());
+        }
+
+        return result;
     }
 }

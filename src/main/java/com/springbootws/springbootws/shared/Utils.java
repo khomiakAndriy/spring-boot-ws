@@ -1,8 +1,13 @@
 package com.springbootws.springbootws.shared;
 
+import com.springbootws.springbootws.security.SecurityConstants;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.Random;
 
 @Component
@@ -17,6 +22,27 @@ public class Utils {
 
     public String generateGddressId(int length){
         return generateRandomString(length);
+    }
+
+    public boolean hasTokenExpired(String token0){
+
+        Claims claim = Jwts.parser()
+                .setSigningKey(SecurityConstants.getTokenSecret())
+                .parseClaimsJws(token0)
+                .getBody();
+
+        return new Date().after(claim.getExpiration());
+    }
+
+    public String generateEmailVerificationToken(String userId){
+
+        String token = Jwts.builder()
+                .setSubject(userId)
+                .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
+                .signWith(SignatureAlgorithm.HS512, SecurityConstants.getTokenSecret())
+                .compact();
+
+        return token;
     }
 
     private String generateRandomString(int length){
