@@ -2,14 +2,14 @@ package com.springbootws.springbootws.security;
 
 import com.springbootws.springbootws.ui.service.UserService;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import static com.springbootws.springbootws.security.SecurityConstants.*;
 
 @EnableWebSecurity
 public class WebSecurity extends WebSecurityConfigurerAdapter {
@@ -25,9 +25,9 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeRequests()
-                .antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL)
+                .antMatchers(HttpMethod.POST, SIGN_UP_URL, PASSWORD_RESET_REQUEST_URL, PASSWORD_RESET_URL)
                 .permitAll()
-                .antMatchers(HttpMethod.GET, SecurityConstants.VERIFICATION_EMAIL_URL)
+                .antMatchers(HttpMethod.GET, VERIFICATION_EMAIL_URL)
                 .permitAll()
                 .anyRequest().authenticated()
         .and().addFilter(getAuthenticationFilter())

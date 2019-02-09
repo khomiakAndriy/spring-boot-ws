@@ -40,20 +40,20 @@ public class AmazonSES {
 
 
     final String PASSWORD_RESET_HTMLBODY = "<h1>A request to reset your password</h1>"
-            + "<p>Hi, $firstName!</p> "
+            + "<p>Hi, %s!</p> "
             + "<p>Someone has requested to reset your password with our project. If it were not you, please ignore it."
             + " otherwise please click on the link below to set a new password: "
-            + "<a href='http://%s:8080/verification-service/password-reset.html?token=%s'>"
+            + "<a href='http://%s:8080/verification-service/password-reset.jsp?token=%s'>"
             + " Click this link to Reset Password"
             + "</a><br/><br/>"
             + "Thank you!";
 
     // The email body for recipients with non-HTML email clients.
     final String PASSWORD_RESET_TEXTBODY = "A request to reset your password "
-            + "Hi, $firstName! "
+            + "Hi, %s! "
             + "Someone has requested to reset your password with our project. If it were not you, please ignore it."
             + " otherwise please open the link below in your browser window to set a new password:"
-            + " http://%s:8080/verification-service/password-reset.html?token=%s"
+            + " http://%s:8080/verification-service/password-reset.jsp?token=%s"
             + " Thank you!";
 
     public void verifyEmail(UserDto userDto) {
@@ -62,7 +62,7 @@ public class AmazonSES {
         //System.setProperty("aws.accessKeyId", "<YOUR KEY ID HERE>");
         //System.setProperty("aws.secretKey", "<SECRET KEY HERE>");
 
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials("AWS_AK", "AWS_SK");
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials("", "");
         AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withCredentials(new
                 AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.EU_WEST_1)
                 .build();
@@ -86,4 +86,44 @@ public class AmazonSES {
         System.out.println("Email sent!");
 
     }
+
+    public boolean sendPasswordResetRequest(String firstName, String email, String token)
+    {
+        boolean returnValue = false;
+
+//        AmazonSimpleEmailService client =
+//                AmazonSimpleEmailServiceClientBuilder.standard()
+//                        .withRegion(Regions.US_EAST_1).build();
+
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAITVM6NNJT33DYGFA", "kZSN7kh+JCUDSZIYTIfmn2dv+eEJEJFFy4Czk3YA");
+        AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withCredentials(new
+                AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.EU_WEST_1)
+                .build();
+
+        String htmlBodyWithToken = String.format(PASSWORD_RESET_HTMLBODY, firstName, host, token);
+
+        String textBodyWithToken = String.format(PASSWORD_RESET_TEXTBODY, firstName, host, token);
+
+        SendEmailRequest request = new SendEmailRequest()
+                .withDestination(
+                        new Destination().withToAddresses( email ) )
+                .withMessage(new Message()
+                        .withBody(new Body()
+                                .withHtml(new Content()
+                                        .withCharset("UTF-8").withData(htmlBodyWithToken))
+                                .withText(new Content()
+                                        .withCharset("UTF-8").withData(textBodyWithToken)))
+                        .withSubject(new Content()
+                                .withCharset("UTF-8").withData(PASSWORD_RESET_SUBJECT)))
+                .withSource(FROM);
+
+        SendEmailResult result = client.sendEmail(request);
+        if(result != null && (result.getMessageId()!=null && !result.getMessageId().isEmpty()))
+        {
+            returnValue = true;
+        }
+
+        return returnValue;
+    }
+
 }
