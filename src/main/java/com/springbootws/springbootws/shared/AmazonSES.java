@@ -95,7 +95,7 @@ public class AmazonSES {
 //                AmazonSimpleEmailServiceClientBuilder.standard()
 //                        .withRegion(Regions.US_EAST_1).build();
 
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAITVM6NNJT33DYGFA", "kZSN7kh+JCUDSZIYTIfmn2dv+eEJEJFFy4Czk3YA");
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials("", "");
         AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withCredentials(new
                 AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.EU_WEST_1)
                 .build();
