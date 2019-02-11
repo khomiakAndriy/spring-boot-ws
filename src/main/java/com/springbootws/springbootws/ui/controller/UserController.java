@@ -11,6 +11,9 @@ import com.springbootws.springbootws.ui.model.request.UserDetailsRequestModel;
 import com.springbootws.springbootws.ui.model.response.*;
 import com.springbootws.springbootws.ui.service.AddressService;
 import com.springbootws.springbootws.ui.service.UserService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
@@ -103,6 +106,10 @@ public class UserController {
         return status;
     }
 
+    @ApiOperation(value = "Get users details endpoint", notes = "description")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "autorization", value = "Bearer JWT token", paramType = "header")
+    })
     @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 
     public List<UserRest> getUsers(@RequestParam(value = "page", defaultValue = "0") int page,
